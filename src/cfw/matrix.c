@@ -1,0 +1,116 @@
+/*
+  cutefirmware (cfw) - custom computer keyboard firmware
+  Copyright (C) 2021 Cutie Club
+
+  This program is free software: you can redistribute it and/or modify
+  it under the terms of the GNU General Public License as published by
+  the Free Software Foundation, either version 3 of the License, or
+  (at your option) any later version.
+
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+  GNU General Public License for more details.
+
+  You should have received a copy of the GNU General Public License
+  along with this program. If not, see <https://www.gnu.org/licenses/>.
+*/
+
+#include "matrix.h"
+#include "FreeRTOS.h"
+#include "gpio.h"
+#include "task.h"
+#include "usb.h"
+#include <avr/io.h>
+#include <string.h>
+
+#define MATRIX_SIZE    (NUMBER_OF_ROWS * NUMBER_OF_COLS)
+#define smallest(a, b) (a > b) ? b : a
+
+// TODO:
+
+// create debouncing function so that we send the correct number of keypresses
+// instead of checking just the keyPressed flag here, account for debouncing
+// 5ms should be fine, as that accounts for all the Cherry MX / Alps SCKx switches
+
+// generate matrix report based on layout then send this data over USB
+
+int cols[NUMBER_OF_COLS] = COLS;
+int rows[NUMBER_OF_ROWS] = ROWS;
+
+void matrixInit() {
+  // set column pins as input pins
+  for (unsigned char colIndex = 0; colIndex < NUMBER_OF_COLS; colIndex++) {
+    int matrixColPin = cols[colIndex];
+    GPIOSetDirection(PORT(matrixColPin), PIN(matrixColPin), input_pullup);
+  }
+
+  // set row pins as output pins
+  for (unsigned char rowIndex = 0; rowIndex < NUMBER_OF_ROWS; rowIndex++) {
+    int matrixRowPin = rows[rowIndex];
+    GPIOSetDirection(PORT(matrixRowPin), PIN(matrixRowPin), output);
+  }
+}
+
+void matrixScanner(void *pvParameters) {
+  const char scanCodeLookup[MATRIX_SIZE] = KEY_MAP;
+  char       keysPressed[MATRIX_SIZE];
+  char       scanCodeBuffer[MATRIX_SIZE];
+  int        positionCounter = 0;
+
+  memset(keysPressed, 0, MATRIX_SIZE);
+  memset(scanCodeBuffer, 0, MATRIX_SIZE);
+
+  for (;;) {
+    int  keyIndex      = 0;
+    char matrixChanged = 0;
+
+    for (int rowIndex = 0; rowIndex < NUMBER_OF_ROWS; rowIndex++) {
+      int matrixRowPin = rows[rowIndex];
+      GPIOSetPinState(PORT(matrixRowPin), PIN(matrixRowPin), low);
+
+      for (int colIndex = 0; colIndex < NUMBER_OF_COLS; colIndex++) {
+        int      matrixColPin = cols[colIndex];
+        pinState flag         = GPIOReadPinState(PORT(matrixColPin), PIN(matrixColPin));
+
+        if (flag == low) {
+          // if key down
+          if (!keysPressed[keyIndex]) {
+            // if was up previously
+            scanCodeBuffer[positionCounter] = scanCodeLookup[keyIndex];
+            positionCounter++;
+            matrixChanged = 1;
+          }
+          keysPressed[keyIndex] = 1;
+        } else {
+          if (keysPressed[keyIndex]) {
+            // key was down, now up
+            // delete from buffer
+            int deletableIndex = -1;
+            for (int i = 0; i < positionCounter; i++) {
+              if ((deletableIndex != -1) && (i > deletableIndex)) {
+                scanCodeBuffer[i - 1] = scanCodeBuffer[i];
+              } else if (scanCodeBuffer[i] == scanCodeLookup[keyIndex]) {
+                deletableIndex = i;
+              }
+            }
+
+            positionCounter--;
+            matrixChanged = 1;
+          }
+          keysPressed[keyIndex] = 0;
+        }
+
+        keyIndex++;
+      }
+
+      GPIOSetPinState(PORT(matrixRowPin), PIN(matrixRowPin), high);
+    }
+
+    if (matrixChanged) { buildReport(scanCodeBuffer, smallest(positionCounter, 6)); }
+  }
+
+  // (we shouldn't get here, but for safety, let's
+  // kill the task)
+  vTaskDelete(NULL);
+}

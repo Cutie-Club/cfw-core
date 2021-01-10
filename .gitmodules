@@ -1,0 +1,6 @@
+[submodule "src/modules/v-usb"]
+	path = src/modules/v-usb
+	url = git@github.com:obdev/v-usb.git
+[submodule "src/modules/FreeRTOS-Kernel"]
+	path = src/modules/FreeRTOS-Kernel
+	url = git@github.com:FreeRTOS/FreeRTOS-Kernel.git

@@ -1,0 +1,8 @@
+{
+  "files.associations": {
+    "cstring": "c",
+    "variant": "c",
+    "ranges": "c",
+    "*.in": "cpp"
+  }
+}
