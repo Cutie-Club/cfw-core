@@ -11,10 +11,10 @@ This project adheres to [Semantic Versioning](https://semver.org/). For detailed
 To install the development environment, clone this repository recursively;
 
 ```sh
-git clone --recursive git@github.com:Cutie-Club/cfw.git
+git clone --recursive git@github.com:Cutie-Club/cfw-core.git
 ```
 
-If you already have a clone of this repository, you can use `git submodule update --init --recursive` download the submodules.
+If you already have a clone of this repository, you can use `git submodule update --init --recursive` to download the submodules.
 
 ## Building
 
@@ -36,7 +36,7 @@ Make sure your MCU has been reset and is ready for flashing.
 
 ## Contributing
 
-cfw is in the early stages of development; we welcome contributions of any nature as end users should assume any part of this software may change and or break at any time. Please do not submit configurations or layouts for specific keyboards to this library at this time.
+cfw is in the early stages of development; we welcome contributions of any nature as end users should assume any part of this software may change and or break at any time. Please do not submit configurations or layouts for specific keyboards to this library at this time - a separate keyboards repository that submodules cfw-core will be created for these.
 
 ## Licence
 

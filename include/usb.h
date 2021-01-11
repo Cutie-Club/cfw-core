@@ -29,7 +29,8 @@ typedef struct {
 
 void          usbSetup();
 void          usbTask(void *pvParameters);
-void          buildReport(char scanCodeArray[], int scanCodeArraySize);
+void          buildReport(unsigned char modifierByte, unsigned char scanCodeArray[],
+                          int scanCodeArraySize);
 void          usbLoop(void);
 unsigned char usbReady(void);
 

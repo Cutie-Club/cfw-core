@@ -68,8 +68,9 @@ void sendReport(void) {
   usbSetInterrupt((void *)&keyboard_report, sizeof(keyboard_report));
 }
 
-void buildReport(char scanCodeArray[], int scanCodeArraySize) {
-  keyboard_report.modifier = 0;
+void buildReport(unsigned char modifierByte, unsigned char scanCodeArray[],
+                 int scanCodeArraySize) {
+  keyboard_report.modifier = modifierByte;
 
   for (int i = 0; i < 6; i++) { keyboard_report.keycode[i] = 0; }
   for (int i = 0; i < scanCodeArraySize; i++) {

@@ -6,7 +6,16 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## [Unreleased]
 
-## [0.1.0] - 2021-01-10
+### Added
+
+- Modifier keycode support.
+
+### Changed
+
+- Fix grammar in README.md
+- Fix repository link in install example in README.md
+
+## 0.1.0 - 2021-01-10
 
 ### Added
 
@@ -19,6 +28,3 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 - JS utility for creating pin definitions.
 - GPIO control for megaAVR MCUs (only configured for registers C and D thus far).
 - Some HID scancodes (but not all of the specification yet).
-
-[Unreleased]: hhttps://github.com/Cutie-Club/cfw-core/compare/v0.1.0...HEAD
-[0.1.0]: https://github.com/Cutie-Club/cfw-core/releases/tag/v0.1.0

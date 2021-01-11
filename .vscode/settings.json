@@ -3,6 +3,9 @@
     "cstring": "c",
     "variant": "c",
     "ranges": "c",
-    "*.in": "cpp"
+    "*.in": "cpp",
+    "*.tcc": "cpp",
+    "fstream": "cpp",
+    "*.inc": "cpp"
   }
 }

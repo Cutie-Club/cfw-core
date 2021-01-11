@@ -30,7 +30,7 @@
   { D0, C3, D1, C1, C2 }
 
 #define KEY_MAP \
-  { KEY_A, KEY_M, KEY_B, KEY_E, KEY_R }
+  { KEY_LSFT, KEY_T, KEY_1, KEY_LBRC, KEY_RALT }
 // col 6 pd6
 // row 4 pc2
 

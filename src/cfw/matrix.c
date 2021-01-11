@@ -19,6 +19,7 @@
 #include "matrix.h"
 #include "FreeRTOS.h"
 #include "gpio.h"
+#include "scancodes.h"
 #include "task.h"
 #include "usb.h"
 #include <avr/io.h>
@@ -53,17 +54,18 @@ void matrixInit() {
 }
 
 void matrixScanner(void *pvParameters) {
-  const char scanCodeLookup[MATRIX_SIZE] = KEY_MAP;
-  char       keysPressed[MATRIX_SIZE];
-  char       scanCodeBuffer[MATRIX_SIZE];
-  int        positionCounter = 0;
+  const unsigned char scanCodeLookup[MATRIX_SIZE] = KEY_MAP;
+  unsigned char       keysPressed[MATRIX_SIZE];
+  unsigned char       scanCodeBuffer[MATRIX_SIZE];
+  int                 positionCounter = 0;
 
   memset(keysPressed, 0, MATRIX_SIZE);
   memset(scanCodeBuffer, 0, MATRIX_SIZE);
 
   for (;;) {
-    int  keyIndex      = 0;
-    char matrixChanged = 0;
+    int           keyIndex      = 0;
+    unsigned char matrixChanged = 0;
+    unsigned char modifierByte  = 0;
 
     for (int rowIndex = 0; rowIndex < NUMBER_OF_ROWS; rowIndex++) {
       int matrixRowPin = rows[rowIndex];
@@ -75,39 +77,48 @@ void matrixScanner(void *pvParameters) {
 
         if (flag == low) {
           // if key down
+          if (scanCodeLookup[keyIndex] >= KEY_LCTL) {
+            unsigned char keyBit = scanCodeLookup[keyIndex] - KEY_LCTL;
+            modifierByte |= (1 << keyBit);
+          }
           if (!keysPressed[keyIndex]) {
             // if was up previously
-            scanCodeBuffer[positionCounter] = scanCodeLookup[keyIndex];
-            positionCounter++;
+            // if not mod
+            if (!(scanCodeLookup[keyIndex] >= KEY_LCTL)) {
+              scanCodeBuffer[positionCounter] = scanCodeLookup[keyIndex];
+              positionCounter++;
+            }
             matrixChanged = 1;
           }
           keysPressed[keyIndex] = 1;
         } else {
           if (keysPressed[keyIndex]) {
             // key was down, now up
-            // delete from buffer
-            int deletableIndex = -1;
-            for (int i = 0; i < positionCounter; i++) {
-              if ((deletableIndex != -1) && (i > deletableIndex)) {
-                scanCodeBuffer[i - 1] = scanCodeBuffer[i];
-              } else if (scanCodeBuffer[i] == scanCodeLookup[keyIndex]) {
-                deletableIndex = i;
+            if (!(scanCodeLookup[keyIndex] >= KEY_LCTL)) {
+              // delete from buffer
+              int deletableIndex = -1;
+              for (int i = 0; i < positionCounter; i++) {
+                if ((deletableIndex != -1) && (i > deletableIndex)) {
+                  scanCodeBuffer[i - 1] = scanCodeBuffer[i];
+                } else if (scanCodeBuffer[i] == scanCodeLookup[keyIndex]) {
+                  deletableIndex = i;
+                }
               }
+              positionCounter--;
             }
-
-            positionCounter--;
             matrixChanged = 1;
           }
           keysPressed[keyIndex] = 0;
         }
-
         keyIndex++;
       }
 
       GPIOSetPinState(PORT(matrixRowPin), PIN(matrixRowPin), high);
     }
 
-    if (matrixChanged) { buildReport(scanCodeBuffer, smallest(positionCounter, 6)); }
+    if (matrixChanged) {
+      buildReport(modifierByte, scanCodeBuffer, smallest(positionCounter, 6));
+    }
   }
 
   // (we shouldn't get here, but for safety, let's
