@@ -9,6 +9,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 ### Added
 
 - Modifier keycode support.
+- I2C driver for megaAVR.
 
 ### Changed
 
