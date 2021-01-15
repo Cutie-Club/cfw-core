@@ -58,7 +58,7 @@ void i2cSendByte(char i2cPeripheral, char byte) {
   i2cCheckStatus(0, TW_MT_DATA_ACK);
 }
 
-void i2cSendData(char i2cPeripheral, char *byteArray, int byteArraySize) {
+void i2cSendBytes(char i2cPeripheral, char *byteArray, int byteArraySize) {
   for (int index = 0; index < byteArraySize; index++) {
     i2cSendByte(i2cPeripheral, byteArray[index]);
   }

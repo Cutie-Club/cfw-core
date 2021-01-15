@@ -10,11 +10,13 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 - Modifier keycode support.
 - I2C driver for megaAVR.
+- MCP23008 I2C I/O Expander driver.
 
 ### Changed
 
 - Fix grammar in README.md
 - Fix repository link in install example in README.md
+- i2cSendData() is now i2cSendBytes() for consistency.
 
 ## 0.1.0 - 2021-01-10
 

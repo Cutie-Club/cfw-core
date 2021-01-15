@@ -34,7 +34,7 @@ void i2cSendAddress(char i2cPeripheral, char address, state state);
 void i2cAwaitCompletion(char i2cPeripheral);
 int  i2cCheckStatus(char i2cPeripheral, char expectedStatus);
 void i2cSendByte(char i2cPeripheral, char byte);
-void i2cSendData(char i2cPeripheral, char *byteArray, int byteArraySize);
+void i2cSendBytes(char i2cPeripheral, char *byteArray, int byteArraySize);
 char i2cReadByte(char i2cPeripheral);
 void i2cStop(char i2cPeripheral);
 
