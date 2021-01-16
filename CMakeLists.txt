@@ -41,6 +41,7 @@ add_compile_options(
 
 # Get all source files
 set(CFW_SOURCE_DIR "./src/cfw")
+set(CFW_DRIVER_DIR "./src/cfw/drivers")
 set(FREERTOS_SOURCE_DIR "./src/modules/FreeRTOS-Kernel")
 set(VUSB_SOURCE_DIR "./src/modules/v-usb/usbdrv")
 
@@ -50,7 +51,10 @@ list(APPEND CFW_SOURCE_LIST "${CFW_SOURCE_DIR}/main.c"
                             "${CFW_SOURCE_DIR}/serial.c"
                             "${CFW_SOURCE_DIR}/rtosCallbacks.c"
                             "${CFW_SOURCE_DIR}/usb.c"
+                            "${CFW_SOURCE_DIR}/arch/megaAVR/i2c.c"
 )
+
+list(APPEND CFW_DRIVER_SOURCE_LIST "${CFW_DRIVER_DIR}/MCP23008/mcp23008.c")
 
 list(APPEND FREERTOS_SOURCE_LIST "${FREERTOS_SOURCE_DIR}/tasks.c"
                                  "${FREERTOS_SOURCE_DIR}/queue.c"
@@ -67,9 +71,10 @@ list(APPEND VUSB_SOURCE_LIST "${VUSB_SOURCE_DIR}/usbdrv.c"
 )
 
 # Create target
-add_executable(${PRODUCT_NAME} ${CFW_SOURCE_LIST} ${FREERTOS_SOURCE_LIST} ${VUSB_SOURCE_LIST})
+add_executable(${PRODUCT_NAME} ${CFW_SOURCE_LIST} ${FREERTOS_SOURCE_LIST} ${CFW_DRIVER_SOURCE_LIST} ${VUSB_SOURCE_LIST})
 
 target_include_directories(cfw PUBLIC "./include"
+                                      "${CFW_DRIVER_DIR}/MCP23008"
                                       "${FREERTOS_SOURCE_DIR}/include"
                                       "${FREERTOS_SOURCE_DIR}/portable/ThirdParty/GCC/ATmega"
                                       "${VUSB_SOURCE_DIR}"
