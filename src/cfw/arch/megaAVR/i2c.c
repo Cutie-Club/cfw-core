@@ -31,11 +31,11 @@ void i2cStart(char i2cPeripheral) {
   i2cCheckStatus(0, TW_START);
 }
 
-void i2cSendAddress(char i2cPeripheral, char address, state state) {
+void i2cSendAddress(char i2cPeripheral, char address, i2cState state) {
   if (state == read) {
-    TWDR = ((address << 1) & 0xFE);
-  } else {
     TWDR = ((address << 1) | 0x01);
+  } else {
+    TWDR = (address << 1);
   }
 
   TWCR = 0x84;
@@ -64,12 +64,18 @@ void i2cSendBytes(char i2cPeripheral, char *byteArray, int byteArraySize) {
   }
 }
 
-char i2cReadByte(char i2cPeripheral) {
+char i2cReadByteAck(char i2cPeripheral) {
   TWCR = 0xC4;
   i2cAwaitCompletion(i2cPeripheral);
-  char byte = TWDR;
   i2cCheckStatus(0, TW_SR_DATA_ACK);
-  return byte;
+  return TWDR;
+}
+
+char i2cReadByteNack(char i2cPeripheral) {
+  TWCR = 0x84;
+  i2cAwaitCompletion(i2cPeripheral);
+  i2cCheckStatus(0, TW_SR_DATA_ACK);
+  return TWDR;
 }
 
 void i2cStop(char i2cPeripheral) { TWCR = 0x94; }

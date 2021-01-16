@@ -22,20 +22,21 @@
 // i2c speed
 #define F_SCL 400000UL
 
-typedef enum state
+typedef enum i2cState
 {
   write, // write is active LOW
   read
-} state;
+} i2cState;
 
 void i2cInit(char i2cPeripheral);
 void i2cStart(char i2cPeripheral);
-void i2cSendAddress(char i2cPeripheral, char address, state state);
+void i2cSendAddress(char i2cPeripheral, char address, i2cState state);
 void i2cAwaitCompletion(char i2cPeripheral);
 int  i2cCheckStatus(char i2cPeripheral, char expectedStatus);
 void i2cSendByte(char i2cPeripheral, char byte);
 void i2cSendBytes(char i2cPeripheral, char *byteArray, int byteArraySize);
-char i2cReadByte(char i2cPeripheral);
+char i2cReadByteAck(char i2cPeripheral);
+char i2cReadByteNack(char i2cPeripheral);
 void i2cStop(char i2cPeripheral);
 
 #endif /* I2C_H */
