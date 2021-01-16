@@ -21,6 +21,15 @@
 
 #include "gpio.h"
 
+#define MCP0 0xFF00
+#define MCP1 0xFF01
+#define MCP2 0xFF02
+#define MCP3 0xFF03
+#define MCP4 0xFF04
+#define MCP5 0xFF05
+#define MCP6 0xFF06
+#define MCP7 0xFF07
+
 typedef enum registerName
 {
   IODIR   = 0x00, // IO Direction Register
@@ -41,7 +50,7 @@ typedef enum configBit
   INTPOL = 1, // INT output pin polarity
   ODR    = 2, // Int pin open-drain output
   DISSLW = 4, // Slew Rate control bit for SDA output
-  SEQOP  = 5  // Sequential Operaation Mode
+  SEQOP  = 5  // Sequential Operation Mode
 } configBit;
 
 void mcpInit(char address);

@@ -90,5 +90,5 @@ void mcpGPIOSetPinState(char address, char pin, pinState outState) {
 
 int mcpGPIOReadPinState(char address, char pin) {
   char GPIOregister = mcpReadRegister(address, GPIO);
-  return (GPIOregister >> pin);
+  return (GPIOregister >> pin) & 1;
 }
