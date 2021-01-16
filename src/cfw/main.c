@@ -37,7 +37,7 @@ int main() {
   xTaskCreate(usbTask, "USB", configMINIMAL_STACK_SIZE, NULL, (configMAX_PRIORITIES - 1),
               NULL);
 
-  xTaskCreate(matrixScanner, "matrix", configMINIMAL_STACK_SIZE, NULL,
+  xTaskCreate(matrixScanner, "matrix", configMINIMAL_STACK_SIZE + 200, NULL,
               (configMAX_PRIORITIES - 2), NULL);
 
   vTaskStartScheduler();

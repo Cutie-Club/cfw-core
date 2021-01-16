@@ -19,19 +19,25 @@
 #include "gpio.h"
 #include <avr/io.h>
 
-// avr
+#define BUILD_REG(reg, port) reg##port
+
+#define SET_TRANS_PORT(reg)                \
+  switch (port) {                          \
+    case 1:                                \
+      translatedPort = &BUILD_REG(reg, B); \
+      break;                               \
+    case 2:                                \
+      translatedPort = &BUILD_REG(reg, C); \
+      break;                               \
+    case 3:                                \
+      translatedPort = &BUILD_REG(reg, D); \
+      break;                               \
+  }
 
 void GPIOSetDirection(char port, char pin, direction dir) {
   volatile uint8_t *translatedPort;
 
-  switch (port) {
-    case 2:
-      translatedPort = &DDRC;
-      break;
-    case 3:
-      translatedPort = &DDRD;
-      break;
-  }
+  SET_TRANS_PORT(DDR)
 
   switch (dir) {
     case input:
@@ -55,14 +61,7 @@ void GPIOSetDirection(char port, char pin, direction dir) {
 void GPIOSetPinState(char port, char pin, pinState outState) {
   volatile uint8_t *translatedPort;
 
-  switch (port) {
-    case 2:
-      translatedPort = &PORTC;
-      break;
-    case 3:
-      translatedPort = &PORTD;
-      break;
-  }
+  SET_TRANS_PORT(PORT)
 
   if (outState == high) {
     *translatedPort |= (1 << pin);
@@ -74,14 +73,7 @@ void GPIOSetPinState(char port, char pin, pinState outState) {
 pinState GPIOReadPinState(char port, char pin) {
   volatile uint8_t *translatedPort;
 
-  switch (port) {
-    case 2:
-      translatedPort = &PINC;
-      break;
-    case 3:
-      translatedPort = &PIND;
-      break;
-  }
+  SET_TRANS_PORT(PIN)
 
   return (*translatedPort >> pin) & 1;
 };

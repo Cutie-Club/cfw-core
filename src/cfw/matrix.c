@@ -19,6 +19,7 @@
 #include "matrix.h"
 #include "FreeRTOS.h"
 #include "gpio.h"
+#include "mcp23008.h"
 #include "scancodes.h"
 #include "task.h"
 #include "usb.h"
@@ -39,18 +40,54 @@
 int cols[NUMBER_OF_COLS] = COLS;
 int rows[NUMBER_OF_ROWS] = ROWS;
 
+void matrixSetDirection(unsigned char port, char pin, direction dir) {
+  switch (port) {
+    case 0xFF:
+      mcpGPIOSetDirection(MCP_ADDR, pin, dir);
+      break;
+    default:
+      GPIOSetDirection(port, pin, dir);
+      break;
+  }
+}
+
+void matrixSetPinState(unsigned char port, char pin, pinState state) {
+  switch (port) {
+    case 0xFF:
+      mcpGPIOSetPinState(MCP_ADDR, pin, state);
+      break;
+    default:
+      GPIOSetPinState(port, pin, state);
+      break;
+  }
+}
+
+char matrixReadPinState(unsigned char port, char pin) {
+  switch (port) {
+    case 0xFF:
+      return mcpGPIOReadPinState(MCP_ADDR, pin);
+      break;
+    default:
+      return GPIOReadPinState(port, pin);
+      break;
+  }
+}
+
 void matrixInit() {
+  mcpInit(MCP_ADDR);
   // set column pins as input pins
   for (unsigned char colIndex = 0; colIndex < NUMBER_OF_COLS; colIndex++) {
     int matrixColPin = cols[colIndex];
-    GPIOSetDirection(PORT(matrixColPin), PIN(matrixColPin), input_pullup);
+    matrixSetDirection(PORT(matrixColPin), PIN(matrixColPin), input_pullup);
   }
 
   // set row pins as output pins
   for (unsigned char rowIndex = 0; rowIndex < NUMBER_OF_ROWS; rowIndex++) {
     int matrixRowPin = rows[rowIndex];
-    GPIOSetDirection(PORT(matrixRowPin), PIN(matrixRowPin), output);
+    matrixSetDirection(PORT(matrixRowPin), PIN(matrixRowPin), output);
   }
+  mcpGPIOSetDirection(MCP_ADDR, 3, output);
+  mcpGPIOSetDirection(MCP_ADDR, 4, output);
 }
 
 void matrixScanner(void *pvParameters) {
@@ -66,16 +103,18 @@ void matrixScanner(void *pvParameters) {
     int           keyIndex      = 0;
     unsigned char matrixChanged = 0;
     unsigned char modifierByte  = 0;
+    unsigned char ledState      = low;
 
     for (int rowIndex = 0; rowIndex < NUMBER_OF_ROWS; rowIndex++) {
       int matrixRowPin = rows[rowIndex];
-      GPIOSetPinState(PORT(matrixRowPin), PIN(matrixRowPin), low);
+      matrixSetPinState(PORT(matrixRowPin), PIN(matrixRowPin), low);
 
       for (int colIndex = 0; colIndex < NUMBER_OF_COLS; colIndex++) {
         int      matrixColPin = cols[colIndex];
-        pinState flag         = GPIOReadPinState(PORT(matrixColPin), PIN(matrixColPin));
+        pinState flag         = matrixReadPinState(PORT(matrixColPin), PIN(matrixColPin));
 
         if (flag == low) {
+          ledState = high;
           // if key down
           if (scanCodeLookup[keyIndex] >= KEY_LCTL) {
             unsigned char keyBit = scanCodeLookup[keyIndex] - KEY_LCTL;
@@ -113,7 +152,7 @@ void matrixScanner(void *pvParameters) {
         keyIndex++;
       }
 
-      GPIOSetPinState(PORT(matrixRowPin), PIN(matrixRowPin), high);
+      matrixSetPinState(PORT(matrixRowPin), PIN(matrixRowPin), high);
     }
 
     if (matrixChanged) {

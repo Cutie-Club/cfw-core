@@ -19,20 +19,30 @@
 #ifndef MATRIX_H
 #define MATRIX_H
 
+#include "mcp23008.h"
 #include "pins.h"
 #include "scancodes.h"
 
-#define NUMBER_OF_COLS 1
+#define MCP_ADDR 0b00100000
+
+#define NUMBER_OF_COLS 14
 #define NUMBER_OF_ROWS 5
 #define COLS \
-  { D6 }
+  { MCP0, D4, C0, B5, D5, B4, D6, B1, B0, B2, D7, B3, MCP2, MCP1 }
 #define ROWS \
   { D0, C3, D1, C1, C2 }
 
-#define KEY_MAP \
-  { KEY_LSFT, KEY_T, KEY_1, KEY_LBRC, KEY_RALT }
-// col 6 pd6
-// row 4 pc2
+#define KEY_MAP                                                                        \
+  {                                                                                    \
+    KEY_ESC, KEY_1, KEY_2, KEY_3, KEY_4, KEY_5, KEY_6, KEY_7, KEY_8, KEY_9, KEY_0,     \
+        KEY_MIN, KEY_EQL, KEY_BS, KEY_TAB, KEY_Q, KEY_W, KEY_E, KEY_R, KEY_T, KEY_Y,   \
+        KEY_U, KEY_I, KEY_O, KEY_P, KEY_LBRC, KEY_RBRC, KEY_NONE, KEY_CAPS, KEY_A,     \
+        KEY_S, KEY_D, KEY_F, KEY_G, KEY_H, KEY_J, KEY_K, KEY_L, KEY_COLN, KEY_APOS,    \
+        KEY_NUHT, KEY_RTRN, KEY_LSFT, KEY_NUBS, KEY_Z, KEY_X, KEY_C, KEY_V, KEY_B,     \
+        KEY_N, KEY_M, KEY_COMM, KEY_DOT, KEY_FSLS, KEY_RSFT, KEY_PRT, KEY_LCTL,        \
+        KEY_LGUI, KEY_LALT, KEY_NONE, KEY_NONE, KEY_NONE, KEY_SPC, KEY_NONE, KEY_NONE, \
+        KEY_NONE, KEY_RALT, KEY_APP, KEY_RGUI, KEY_RCTL                                \
+  }
 
 void matrixInit();
 void matrixScanner(void *pvParameters);
