@@ -46,8 +46,8 @@ typedef enum configBit
 
 void mcpInit(char address);
 void mcpConfigure(char address, configBit bit, char value);
-void mcpWriteByte(char address, registerName reg, char byte);
-char mcpReadByte(char address, registerName reg);
+void mcpWriteRegister(char address, registerName reg, char contents);
+char mcpReadRegister(char address, registerName reg);
 
 void mcpGPIOSetDirection(char address, char pin, direction dir);
 void mcpGPIOSetPinState(char address, char pin, pinState outState);

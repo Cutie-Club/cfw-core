@@ -19,42 +19,38 @@
 #include "mcp23008.h"
 #include "i2c.h"
 
-void mcpInit(char address) {
-  i2cInit(0);
-  // disable sequential operation
-  mcpConfigure(address, SEQOP, 1);
-}
+void mcpInit(char address) { i2cInit(0); }
 
 void mcpConfigure(char address, configBit bit, char value) {
-  char configRegister = mcpReadByte(address, IOCON);
+  char configRegister = mcpReadRegister(address, IOCON);
   configRegister |= (1 << bit);
-  mcpWriteByte(address, IOCON, configRegister);
+  mcpWriteRegister(address, IOCON, configRegister);
 }
 
-void mcpWriteByte(char address, registerName reg, char byte) {
+void mcpWriteRegister(char address, registerName reg, char contents) {
   i2cStart(0);
   i2cSendAddress(0, address, write);
   i2cSendByte(0, reg);
-  i2cSendByte(0, byte);
+  i2cSendByte(0, contents);
   i2cStop(0);
 }
 
-char mcpReadByte(char address, registerName reg) {
-  char byte;
+char mcpReadRegister(char address, registerName reg) {
   i2cStart(0);
   i2cSendAddress(0, address, write);
   i2cSendByte(0, reg);
   i2cStart(0);
   i2cSendAddress(0, address, read);
-  byte = i2cReadByte(0);
+  char contents = i2cReadByteNack(0);
   i2cStop(0);
-  return byte;
+  return contents;
 }
 
 void mcpGPIOSetDirection(char address, char pin, direction dir) {
-  char dirRegister    = mcpReadByte(address, IODIR);
-  char pullupRegister = mcpReadByte(address, GPPU);
-  char pullupChanged  = 0;
+  char dirRegister    = mcpReadRegister(address, IODIR);
+  char pullupRegister = mcpReadRegister(address, GPPU);
+
+  char pullupChanged = 0;
 
   switch (dir) {
     case input:
@@ -68,14 +64,16 @@ void mcpGPIOSetDirection(char address, char pin, direction dir) {
     case output:
       dirRegister &= ~(1 << pin);
       break;
+    case input_pulldown:
+      break;
   }
 
-  mcpWriteByte(address, IODIR, dirRegister);
-  if (pullupChanged) { mcpWriteByte(address, GPPU, pullupRegister); }
+  mcpWriteRegister(address, IODIR, dirRegister);
+  if (pullupChanged) { mcpWriteRegister(address, GPPU, pullupRegister); }
 }
 
 void mcpGPIOSetPinState(char address, char pin, pinState outState) {
-  char GPIOregister = mcpReadByte(address, GPIO);
+  char GPIOregister = mcpReadRegister(address, GPIO);
 
   switch (outState) {
     case high:
@@ -87,10 +85,10 @@ void mcpGPIOSetPinState(char address, char pin, pinState outState) {
       break;
   }
 
-  mcpWriteByte(address, GPIO, GPIOregister);
+  mcpWriteRegister(address, GPIO, GPIOregister);
 }
 
 int mcpGPIOReadPinState(char address, char pin) {
-  char GPIOregister = mcpReadByte(address, GPIO);
+  char GPIOregister = mcpReadRegister(address, GPIO);
   return (GPIOregister >> pin);
 }
