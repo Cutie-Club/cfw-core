@@ -103,7 +103,6 @@ void matrixScanner(void *pvParameters) {
     int           keyIndex      = 0;
     unsigned char matrixChanged = 0;
     unsigned char modifierByte  = 0;
-    unsigned char ledState      = low;
 
     for (int rowIndex = 0; rowIndex < NUMBER_OF_ROWS; rowIndex++) {
       int matrixRowPin = rows[rowIndex];
@@ -114,7 +113,6 @@ void matrixScanner(void *pvParameters) {
         pinState flag         = matrixReadPinState(PORT(matrixColPin), PIN(matrixColPin));
 
         if (flag == low) {
-          ledState = high;
           // if key down
           if (scanCodeLookup[keyIndex] >= KEY_LCTL) {
             unsigned char keyBit = scanCodeLookup[keyIndex] - KEY_LCTL;
