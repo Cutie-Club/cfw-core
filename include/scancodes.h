@@ -63,7 +63,7 @@
 #define KEY_8    0x25
 #define KEY_9    0x26
 #define KEY_0    0x27
-#define KET_RTRN 0x28
+#define KEY_RTRN 0x28
 #define KEY_ESC  0x29
 #define KEY_BS   0x2A
 #define KEY_TAB  0x2B
