@@ -30,7 +30,7 @@ typedef enum direction
   output
 } direction;
 
-typedef enum state
+typedef enum pinState
 {
   low,
   high
