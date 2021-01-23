@@ -26,16 +26,8 @@
 #include <avr/io.h>
 #include <string.h>
 
-#define MATRIX_SIZE    (NUMBER_OF_ROWS * NUMBER_OF_COLS)
-#define smallest(a, b) (a > b) ? b : a
-
-// TODO:
-
-// create debouncing function so that we send the correct number of keypresses
-// instead of checking just the keyPressed flag here, account for debouncing
-// 5ms should be fine, as that accounts for all the Cherry MX / Alps SCKx switches
-
-// generate matrix report based on layout then send this data over USB
+#define MATRIX_SIZE (NUMBER_OF_ROWS * NUMBER_OF_COLS)
+#define REPORT_SIZE 6
 
 int cols[NUMBER_OF_COLS] = COLS;
 int rows[NUMBER_OF_ROWS] = ROWS;
@@ -93,16 +85,11 @@ void matrixInit() {
 void matrixScanner(void *pvParameters) {
   const unsigned char scanCodeLookup[MATRIX_SIZE] = KEY_MAP;
   unsigned char       keysPressed[MATRIX_SIZE];
-  unsigned char       scanCodeBuffer[MATRIX_SIZE];
-  int                 positionCounter = 0;
-
   memset(keysPressed, 0, MATRIX_SIZE);
-  memset(scanCodeBuffer, 0, MATRIX_SIZE);
 
   for (;;) {
     int           keyIndex      = 0;
     unsigned char matrixChanged = 0;
-    unsigned char modifierByte  = 0;
 
     for (int rowIndex = 0; rowIndex < NUMBER_OF_ROWS; rowIndex++) {
       int matrixRowPin = rows[rowIndex];
@@ -113,36 +100,14 @@ void matrixScanner(void *pvParameters) {
         pinState flag         = matrixReadPinState(PORT(matrixColPin), PIN(matrixColPin));
 
         if (flag == low) {
-          // if key down
-          if (scanCodeLookup[keyIndex] >= KEY_LCTL) {
-            unsigned char keyBit = scanCodeLookup[keyIndex] - KEY_LCTL;
-            modifierByte |= (1 << keyBit);
-          }
           if (!keysPressed[keyIndex]) {
-            // if was up previously
-            // if not mod
-            if (!(scanCodeLookup[keyIndex] >= KEY_LCTL)) {
-              scanCodeBuffer[positionCounter] = scanCodeLookup[keyIndex];
-              positionCounter++;
-            }
+            // key was up, now down
             matrixChanged = 1;
           }
           keysPressed[keyIndex] = 1;
         } else {
           if (keysPressed[keyIndex]) {
             // key was down, now up
-            if (!(scanCodeLookup[keyIndex] >= KEY_LCTL)) {
-              // delete from buffer
-              int deletableIndex = -1;
-              for (int i = 0; i < positionCounter; i++) {
-                if ((deletableIndex != -1) && (i > deletableIndex)) {
-                  scanCodeBuffer[i - 1] = scanCodeBuffer[i];
-                } else if (scanCodeBuffer[i] == scanCodeLookup[keyIndex]) {
-                  deletableIndex = i;
-                }
-              }
-              positionCounter--;
-            }
             matrixChanged = 1;
           }
           keysPressed[keyIndex] = 0;
@@ -154,7 +119,35 @@ void matrixScanner(void *pvParameters) {
     }
 
     if (matrixChanged) {
-      buildReport(modifierByte, scanCodeBuffer, smallest(positionCounter, 6));
+      // generate scanCodeBuffer
+      // generate modifierByte
+      unsigned char scanCodeBuffer[REPORT_SIZE];
+      memset(scanCodeBuffer, 0, REPORT_SIZE);
+
+      unsigned char modifierByte    = 0;
+      int           positionCounter = 0;
+
+      for (int i = 0; i < MATRIX_SIZE; i++) {
+        if (keysPressed[i]) {
+          // is it a modifier?
+          if (scanCodeLookup[i] >= (unsigned)KEY_LCTL) {
+            char modBit = scanCodeLookup[i] - (unsigned)KEY_LCTL;
+            modifierByte |= (1 << modBit);
+          } else {
+            // make scanCodeBuffer
+            if (positionCounter < REPORT_SIZE) {
+              scanCodeBuffer[positionCounter] = scanCodeLookup[i];
+              positionCounter++;
+            } else {
+              memset(scanCodeBuffer, KEY_ERRO, REPORT_SIZE);
+              break;
+              // 6KRO overflow event, break!
+            }
+          }
+        }
+      }
+
+      buildReport(modifierByte, scanCodeBuffer, REPORT_SIZE);
     }
   }
 
