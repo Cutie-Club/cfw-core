@@ -4,3 +4,6 @@
 [submodule "src/modules/FreeRTOS-Kernel"]
 	path = src/modules/FreeRTOS-Kernel
 	url = git@github.com:FreeRTOS/FreeRTOS-Kernel.git
+[submodule "src/modules/lufa"]
+	path = src/modules/lufa
+	url = git@github.com:abcminiuser/lufa.git
