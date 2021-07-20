@@ -1,0 +1,25 @@
+{
+  "engines": {
+    "node": ">=10.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^15.6.1",
+    "@typescript-eslint/eslint-plugin": "^4.25.0",
+    "@typescript-eslint/parser": "^4.25.0",
+    "eslint": "^7.27.0",
+    "eslint-config-prettier": "^8.3.0",
+    "prettier": "2.3.0",
+    "typescript": "4.2.4",
+    "zod": "^3.1.0"
+  },
+  "scripts": {
+    "build": "tsc",
+    "start": "tsc && node ./build/main.js",
+    "lint": "yarn eslint ./src --ext .js,.jsx,.ts,.tsx",
+    "prettify": "yarn prettier --write ./src"
+  },
+  "dependencies": {
+    "chalk": "^4.1.1",
+    "yaml": "2.0.0-5"
+  }
+}

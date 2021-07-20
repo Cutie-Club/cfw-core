@@ -46,3 +46,5 @@ SPDX-License-Identifier: (GPL-3.0-or-later)
 Copyright (C) 2021 Cutie Club
 
 ![GNU GPLv3 or later](https://www.gnu.org/graphics/gplv3-or-later.png)
+
+cfw submodules other free software, under `src/modules`. For their licencing information, please see their licence files.

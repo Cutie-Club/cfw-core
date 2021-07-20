@@ -11,12 +11,16 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 - Modifier keycode support.
 - I2C driver for megaAVR.
 - MCP23008 I2C I/O Expander driver.
+- Create protocols folder for USB and other communication protocols.
+- Submodule LUFA for USB-enabled megaAVR support.
+- Beta keyboard configuration support via YAML documents.
 
 ### Changed
 
 - Fix grammar in README.md
 - Fix repository link in install example in README.md
 - i2cSendData() is now i2cSendBytes() for consistency.
+- Add licence information for submodules in README.md
 
 ### Removed
 
